@@ -33,7 +33,7 @@ xlsx_factory = bm.connect_to('bm-v23.xlsx')
 xlsx_data = xlsx_factory.parsed_data
 
 # main_table()
-position = NimbusBM(xlsx_data, main_filter).position()
-df = NimbusbmData(xlsx_data, position, 'test.csv').sub_table()
+position = f.NimbusBM(xlsx_data, f.main_filter).position()
+df = f.NimbusbmData(xlsx_data, position, 'test.csv').sub_table()
 
 ```
