@@ -102,10 +102,14 @@ def main():
     # main_table()
     position = NimbusBM(xlsx_data, main_filter).position()
     df = NimbusbmData(xlsx_data, position, 'test.csv').sub_table()
-    df.to_csv(datetime.now().strftime("%y%m%d_%H%M")+'.csv', header=False, index=False) #寫入 csv
+    #df.to_csv(datetime.now().strftime("%y%m%d_%H%M")+'.csv', header=False, index=False) #寫入 csv
 
     
     # sub_table()
+    """處理流程:
+    取得座標，一行一行處理補齊 item, compoment, sku(configs)
+    補完之後重新建立一個新的 DataFrame
+    """
     header = list()
     sub = NimbusBM(xlsx_data, sub_filter).position()
     for r in range(sub['header_start'], sub['header_start']+1):
@@ -124,7 +128,7 @@ def main():
             xlsx_data.values[r][0] = item
             xlsx_data.values[r][1] = comp
             content.append(xlsx_data.values[r])
-
+            
 
 if __name__ == '__main__':
     main()
