@@ -1,6 +1,3 @@
-from pandas import DataFrame
-import pandas as pd
-
 """
 Descripe:
     使用 python pandas module 作為讀取 excel 檔案方法。
@@ -14,6 +11,9 @@ Usage:
     >>> xlsx_data = xlsx_factory.parsed_data
     >>> xlsx_data_s = xlsx_factory.parsed_seriesdata
 """
+
+from pandas import DataFrame
+import pandas as pd
 
 
 class XLSconnector:

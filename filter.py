@@ -1,9 +1,3 @@
-import json
-import pandas as pd
-from datetime import datetime
-
-import bm_method as bm
-
 """
 Descripe:
     專為 Nimbus Build Matrix 做的 filter 工具，可以找出 main table 與 sub table 座標位置
@@ -19,6 +13,13 @@ Usage:
 
 """
 
+import json
+import pandas as pd
+from datetime import datetime
+
+import bm_method as bm
+
+
 class NimbusBM:
 
     def __init__(self, content, filter_type=None):
@@ -31,7 +32,7 @@ class NimbusBM:
 
     def position(self):
         if self.filter_type is None:
-            return 0
+            return 0 #TODO 這裡怪怪傳 0 ??
         else:
             return self.filter_type(self)
 
@@ -59,7 +60,7 @@ class NimbusbmData:
 
 
 def main_filter(NimbusBM):
-    """TODO"""
+    """This is filter method for main table"""
     init = True
     row_s = None
     row_e = None
@@ -74,11 +75,11 @@ def main_filter(NimbusBM):
             return {'row_s': row_s,
                     'row_e': row - 1,
                     'col_s': row_e,
-                    'col_e':len(NimbusBM.content.values[row])}
+                    'col_e': len(NimbusBM.content.values[row])}
 
 
 def sub_filter(NimbusBM):
-    """TODO"""
+    """This is filter method for sub table"""
     init = True
     row_e = None
     for row in range(0, len(NimbusBM.content.values)):
@@ -91,44 +92,51 @@ def sub_filter(NimbusBM):
             not NimbusBM.content.isnull().values[row].any()):
             return {'head_s': row,
                     'head_e': row_e,
-                    'row_s': row+1,
+                    'row_s': row + 1,
                     'row_e': len(NimbusBM.content.values[row])}
 
 
 def main():
     xlsx_factory = bm.connect_to('bm-v23.xlsx')
     xlsx_data = xlsx_factory.parsed_data
+    print(NimbusBM(xlsx_data, sub_filter))
     
     # main_table()
     position = NimbusBM(xlsx_data, main_filter).position()
     df = NimbusbmData(xlsx_data, position, 'test.csv').sub_table()
-    #df.to_csv(datetime.now().strftime("%y%m%d_%H%M")+'.csv', header=False, index=False) #寫入 csv
+    df.to_csv(datetime.now().strftime("%y%m%d_%H%M")+'.csv', header=False, index=False) #寫入 csv
 
-    
-    # sub_table()
+    #TODO(yichihe)
+    # sub_table() here should modify new format
     """處理流程:
     取得座標，一行一行處理補齊 item, compoment, sku(configs)
-    補完之後重新建立一個新的 DataFrame
+    補完之後重新建立一個新的 DataFrame（header 要增加一欄位）接著儲存。
     """
-    header = list()
     sub = NimbusBM(xlsx_data, sub_filter).position()
-    for r in range(sub['header_start'], sub['header_start']+1):
-        for c in range(0, sub['header_end']):
+    header = list() # save header
+    for r in range(sub['head_s'], sub['head_s']+1):
+        for c in range(0, sub['head_e']):
             header.append(xlsx_data.values[r][c])
     header.append('configs')
 
-    content = list()
+    content = list() # save content
     item, comp = None, None
-    for r in range(sub['row_start'], sub['row_end']):
+    for r in range(sub['row_s'], len(xlsx_data.index)):
         if isinstance(xlsx_data.values[r][0], str):
             item = xlsx_data.values[r][0]
-        if isinstance(xlsx_data.values[r][1], str):
+        elif isinstance(xlsx_data.values[r][1], str):
             comp = xlsx_data.values[r][1]
         else:
             xlsx_data.values[r][0] = item
             xlsx_data.values[r][1] = comp
-            content.append(xlsx_data.values[r])
-            
+            content.append(xlsx_data.values[r][:sub['head_e']])
+        for c in range(sub['head_e']+1, sub['row_e']):
+            if xlsx_data.notnull().values[r][c]:
+                print(xlsx_data.values[sub['row_s']-1][c])
+    df_content = xlsx_data[46:48].copy()
+    print(df_content)
+    
 
 if __name__ == '__main__':
     main()
+
