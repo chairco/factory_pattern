@@ -34,6 +34,6 @@ xlsx_data = xlsx_factory.parsed_data
 
 # main_table()
 position = f.NimbusBM(xlsx_data, f.main_filter).position()
-df = f.NimbusBM(xlsx_data, main_filter).main_table
+df = f.NimbusBM(xlsx_data, f.main_filter).main_table
 
 ```
